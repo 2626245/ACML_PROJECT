@@ -1,5 +1,5 @@
 # ACML Project — Pneumonia Detection from Chest X-Rays
-### Adaptive Computation and Machine Learning (COMS 4030A / COMS 7047A)
+### Adaptive Computation and Machine Learning (COMS4030A / COMS7047A)
 
 ---
 
