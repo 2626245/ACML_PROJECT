@@ -9,7 +9,7 @@
 | Paballo Moloantoa | 2451669 |
 | Lanet | [Student Number] |
 | Aphiwe | [Student Number] |
-| Amogelang | [Student Number] |
+| Amogelang Moenyane | 2708897 |
 
 ---
 
