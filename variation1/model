@@ -1,0 +1,92 @@
+# ================================================================
+# ACML Project — Pneumonia Detection from Chest X-Rays
+# Variation 1: Custom CNN with Batch Normalisation
+#
+# model.py — CNN architecture definition.
+# ================================================================
+
+from tensorflow.keras import layers, models
+
+
+# ---------------------------------------------------------------
+# MODEL ARCHITECTURE
+#
+# Variation 1: Custom CNN with Batch Normalisation
+#
+#   Input (224 x 224 x 3)
+#   |
+#   Conv Block 1: Conv(32, 3x3) -> BatchNorm -> ReLU -> MaxPool(2x2)
+#   Conv Block 2: Conv(64, 3x3) -> BatchNorm -> ReLU -> MaxPool(2x2)
+#   Conv Block 3: Conv(128,3x3) -> BatchNorm -> ReLU -> MaxPool(2x2)
+#   Conv Block 4: Conv(256,3x3) -> BatchNorm -> ReLU -> MaxPool(2x2)
+#   |
+#   Flatten
+#   Dense(256) -> ReLU -> Dropout(0.5)
+#   Dense(1)   -> Sigmoid
+#   |
+#   Output: probability of PNEUMONIA
+#
+# Batch Normalisation (added after each Conv layer):
+#   Rescales the outputs of each convolutional layer to a stable
+#   range during training. This makes training faster and more
+#   stable, which is especially important with a small dataset.
+#
+# Dropout(0.5):
+#   Randomly switches off 50% of neurons in the fully connected
+#   layer during training. This prevents overfitting by stopping
+#   the model from relying too heavily on any single neuron.
+#
+# Filter count doubles each block (32->64->128->256):
+#   Early layers detect simple features (edges, curves) and need
+#   fewer kernels. Deeper layers combine these into complex
+#   patterns and need more kernels to represent them.
+# ---------------------------------------------------------------
+
+def build_model():
+    model = models.Sequential([
+
+        layers.Input(shape=(224, 224, 3)),
+
+        # Conv Block 1
+        layers.Conv2D(32, (3, 3), padding='same'),
+        layers.BatchNormalization(),
+        layers.Activation('relu'),
+        layers.MaxPooling2D((2, 2)),
+
+        # Conv Block 2
+        layers.Conv2D(64, (3, 3), padding='same'),
+        layers.BatchNormalization(),
+        layers.Activation('relu'),
+        layers.MaxPooling2D((2, 2)),
+
+        # Conv Block 3
+        layers.Conv2D(128, (3, 3), padding='same'),
+        layers.BatchNormalization(),
+        layers.Activation('relu'),
+        layers.MaxPooling2D((2, 2)),
+
+        # Conv Block 4
+        layers.Conv2D(256, (3, 3), padding='same'),
+        layers.BatchNormalization(),
+        layers.Activation('relu'),
+        layers.MaxPooling2D((2, 2)),
+
+        # Flatten: unrolls 3D feature maps into a 1D array
+        layers.Flatten(),
+
+        # Fully connected layer
+        layers.Dense(256, activation='relu'),
+        layers.Dropout(0.5),
+
+        # Output: single node, sigmoid for binary classification
+        # > 0.5 = PNEUMONIA, <= 0.5 = NORMAL
+        layers.Dense(1, activation='sigmoid')
+    ])
+
+    model.compile(
+        optimizer='adam',
+        loss='binary_crossentropy',
+        metrics=['accuracy']
+    )
+
+    return model
