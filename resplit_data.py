@@ -1,5 +1,6 @@
+# type: ignore
 import os
-import shutil
+import shutil 
 from sklearn.model_selection import train_test_split
 from collections import Counter
 
