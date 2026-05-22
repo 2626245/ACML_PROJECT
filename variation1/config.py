@@ -47,9 +47,13 @@ CLASS_WEIGHTS = {
 
 # ---------------------------------------------------------------
 # OUTPUT PATHS
-# All saved files go here
+# All saved files go into the outputs/ folder to stay consistent
+# with the rest of the team's code
 # ---------------------------------------------------------------
-MODEL_SAVE_PATH       = 'best_model_variation1.keras'
-HISTORY_PLOT_PATH     = 'training_history_variation1.png'
-CONFUSION_MATRIX_PATH = 'confusion_matrix_variation1.png'
-ROC_CURVE_PATH        = 'roc_curve_variation1.png'
+import os
+os.makedirs('outputs', exist_ok=True)   # create outputs/ if it doesn't exist
+
+MODEL_SAVE_PATH       = 'outputs/best_model_variation1.keras'
+HISTORY_PLOT_PATH     = 'outputs/training_history_variation1.png'
+CONFUSION_MATRIX_PATH = 'outputs/confusion_matrix_variation1.png'
+ROC_CURVE_PATH        = 'outputs/roc_curve_variation1.png'
