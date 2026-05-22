@@ -1,0 +1,133 @@
+# ================================================================
+# ACML Project — Pneumonia Detection from Chest X-Rays
+# Variation 1: Custom CNN with Batch Normalisation
+#
+# evaluate.py — Evaluation metrics, confusion matrix, ROC curve.
+# ================================================================
+
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import (
+    classification_report,
+    confusion_matrix,
+    roc_curve,
+    auc
+)
+from config import CONFUSION_MATRIX_PATH, ROC_CURVE_PATH
+
+
+# ---------------------------------------------------------------
+# EVALUATION ON TEST SET
+#
+# The test set is data the model has NEVER seen during training
+# or validation. These are the metrics that matter.
+#
+# Metrics used (Lecture 6, Section 4.1):
+#   Accuracy   = (TP + TN) / total
+#   Precision  = TP / (TP + FP)
+#   Recall     = TP / (TP + FN)
+#   F1 Score   = harmonic mean of Precision and Recall
+#
+# Recall is the most important metric for this problem —
+# we must not miss pneumonia cases (false negatives).
+# ---------------------------------------------------------------
+
+def evaluate_model(model, test_gen):
+    y_true      = test_gen.classes
+    y_pred_prob = model.predict(test_gen, verbose=1).flatten()
+    y_pred      = (y_pred_prob > 0.5).astype(int)
+
+    accuracy = np.mean(y_true == y_pred)
+    print(f"\nAccuracy: {accuracy:.4f} ({accuracy*100:.2f}%)")
+
+    print("\nClassification Report:")
+    print(classification_report(
+        y_true,
+        y_pred,
+        target_names=['NORMAL', 'PNEUMONIA']
+    ))
+
+    return y_true, y_pred, y_pred_prob, accuracy
+
+
+# ---------------------------------------------------------------
+# CONFUSION MATRIX (Lecture 6, Section 4.1)
+#
+#   TP: PNEUMONIA correctly predicted as PNEUMONIA
+#   TN: NORMAL correctly predicted as NORMAL
+#   FP: NORMAL incorrectly predicted as PNEUMONIA
+#   FN: PNEUMONIA incorrectly predicted as NORMAL (most dangerous)
+# ---------------------------------------------------------------
+
+def plot_confusion_matrix(y_true, y_pred):
+    cm = confusion_matrix(y_true, y_pred)
+
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(
+        cm,
+        annot=True,
+        fmt='d',
+        cmap='Blues',
+        xticklabels=['NORMAL', 'PNEUMONIA'],
+        yticklabels=['NORMAL', 'PNEUMONIA']
+    )
+    plt.title('Confusion Matrix — Variation 1 (Custom CNN)')
+    plt.ylabel('Actual Class')
+    plt.xlabel('Predicted Class')
+    plt.tight_layout()
+    plt.savefig(CONFUSION_MATRIX_PATH, dpi=150)
+    plt.show()
+
+    tn, fp, fn, tp = cm.ravel()
+    print(f"\nTrue Positives  (TP): {tp}  — Pneumonia correctly identified")
+    print(f"True Negatives  (TN): {tn}  — Normal correctly identified")
+    print(f"False Positives (FP): {fp}  — Normal incorrectly flagged as Pneumonia")
+    print(f"False Negatives (FN): {fn}  — Pneumonia missed (most dangerous error)")
+
+    precision = tp / (tp + fp)
+    recall    = tp / (tp + fn)
+    f1        = 2 * (precision * recall) / (precision + recall)
+
+    print(f"\nPrecision: {precision:.4f}")
+    print(f"Recall:    {recall:.4f}")
+    print(f"F1 Score:  {f1:.4f}")
+
+    return precision, recall, f1
+
+
+# ---------------------------------------------------------------
+# ROC CURVE AND AUC (Lecture 6, Section 4.2)
+#
+# Plots True Positive Rate vs False Positive Rate for all
+# possible threshold values.
+#
+# AUC = 1.0 → perfect model
+# AUC = 0.5 → no better than random guessing
+#
+# Use AUC to compare this variation against the other two.
+# ---------------------------------------------------------------
+
+def plot_roc_curve(y_true, y_pred_prob):
+    fpr, tpr, thresholds = roc_curve(y_true, y_pred_prob)
+    roc_auc = auc(fpr, tpr)
+
+    plt.figure(figsize=(8, 6))
+    plt.plot(fpr, tpr, color='blue', lw=2,
+             label=f'ROC Curve (AUC = {roc_auc:.4f})')
+    plt.plot([0, 1], [0, 1], color='grey', lw=1,
+             linestyle='--', label='Random Classifier (AUC = 0.5)')
+    plt.scatter(fpr, tpr, color='blue', s=10)
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel('False Positive Rate (FPR)')
+    plt.ylabel('True Positive Rate (TPR)')
+    plt.title('ROC Curve — Variation 1 (Custom CNN)')
+    plt.legend(loc='lower right')
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig(ROC_CURVE_PATH, dpi=150)
+    plt.show()
+
+    print(f"\nAUC Score: {roc_auc:.4f}")
+    return roc_auc
