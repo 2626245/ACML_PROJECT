@@ -1,0 +1,11 @@
+ROC-AUC: 0.9886
+Threshold: 0.500
+
+              precision    recall  f1-score   support
+
+      Normal       0.84      0.95      0.89       238
+   Pneumonia       0.98      0.93      0.96       641
+
+    accuracy                           0.94       879
+   macro avg       0.91      0.94      0.92       879
+weighted avg       0.94      0.94      0.94       879
